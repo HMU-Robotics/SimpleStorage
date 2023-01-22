@@ -1,6 +1,11 @@
 #pragma once
 #include <iostream>
-
+#include <mysql_connection.h>
+#include <mysql_driver.h>
+#include <mysql_error.h>
+#include <cppconn/driver.h>
+#include <cppconn/prepared_statement.h>
+#include <cppconn/connection.h>
 
 using namespace std;
 using namespace sql;
@@ -21,7 +26,6 @@ public:
     }
     void connect(string server, string username, string password,string dbname) {
         con = driver->connect(server, username, password);
-        cout<<con<<endl;
         con->setSchema(dbname);
     }
     void executeSQL(string sql) {
@@ -32,8 +36,21 @@ public:
     void printResult() {
         // print results
         while (res->next()) {
-            cout << res->getString("column_name") << endl;
+            for(int i=1;i<=res->getMetaData()->getColumnCount();i++){
+                cout<<res->getMetaData()->getColumnLabel(i)<<"       ";
+            }
+            cout<<endl;
+            for(int i=1;i<=res->getMetaData()->getColumnCount();i++){
+                cout<<res->getString(i)<<"         ";
+            }
+            cout<<endl;
         }
+    }
+
+    void clearBuff(){
+        // clean buff
+        delete res;
+        delete stmt;
     }
     void close() {
         // clean up
