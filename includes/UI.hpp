@@ -22,13 +22,15 @@ class UI{
         "Add Item",
         "See all Items",
         "See available items"
+        "Register member"
+        "See all"
     };
 
     protected:
 
     public:
         UI(){
-            this->db.connect("tcp://127.0.0.1:3306","HMU","hmuroboticsclub!@#123","HMU_ROBOTICS_STORAGE");
+            this->db.connect("tcp://192.168.1.3:3306","HMU","hmuroboticsclub!@#123","HMU_ROBOTICS_STORAGE");
         }
         void displayMainMenu();
         void Login();
@@ -46,6 +48,8 @@ void UI::Login(){
 
         if(password!="" && username!=""){
             std::cout<<"Not empty"<<std::endl;
+            db.executeSQL("SELECT * FROM user;");
+            db.printResult();
             this->_login = true;
             while(this->_login){
                 this->displayMainMenu();
@@ -66,7 +70,7 @@ void UI::displayMainMenu(){
         this->_login = false;
         std::cout<<"Log out successful ..."<<std::endl;
         return;
-    };
-    if(index < std::stoi(choice)) std::cout<<"Not a valid choice"<<std::endl;
+    }
+    else std::cout<<"Not a valid choice"<<std::endl;
 
 }
