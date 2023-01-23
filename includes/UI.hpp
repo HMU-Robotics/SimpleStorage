@@ -4,6 +4,7 @@
 #include "./MySQLConnect.hpp"
 #include "./sha-3.hpp"
 #include "objects.hpp"
+#include <limits>
 
 
 class Interface{
@@ -36,6 +37,9 @@ class Interface{
 
     protected:
         Member* getMember(std::string username);
+        void printAllMembers();
+        void create_item();
+        void delete_item();
 
     public:
         Interface(){
@@ -43,8 +47,40 @@ class Interface{
             this->db.connect("tcp://127.0.0.1:3306","HMU","HMUroboticsclub!@#123456","HMU_ROBOTICS_STORAGE");
         }
         void displayMainMenu();
+        void ItemsMenu();
         void Login();
         void printLogo();
+};
+
+void Interface::ItemsMenu(){
+    std::string choice = "";
+    bool _item_menu = true;
+    while(_item_menu){
+        std::cout<<"1) Create Item"<<std::endl;
+        std::cout<<"2) Delete Item"<<std::endl;
+        std::cin>>choice;
+
+        if(choice == "q") _item_menu = false;
+        else if(choice == "1") this->create_item();
+        else if(choice == "2") this->delete_item();
+        else std::cout<<"Wrong input ... (q to exit)"<<std::endl;
+    }
+}
+
+void Interface::printAllMembers(){
+    try{
+        int id,role_id;
+        std::string query ,first_name , last_name , email , ac_name , password , hashpass ;
+        query = "SELECT id,username,email,first_name,last_name,role_id FROM user";
+        db.pstmt = db.con->prepareStatement(query);;
+        db.res = db.pstmt->executeQuery();
+        db.printResult();
+        std::cout<<"Press enter to continue ...";
+        std::cin.ignore(std::numeric_limits<streamsize>::max(),'\n');
+        
+    } catch(sql::SQLException &e){
+        std::cout<<"Faulted at fetching member from db..."<<std::endl;
+    }
 };
 
 void Interface::printLogo(){
@@ -134,7 +170,7 @@ void Interface::Login(){
 
             while(this->_login){
                 this->displayMainMenu();
-                std::system("clear");
+                // std::system("clear");
             }
             } catch(sql::SQLException &e){
                 std::cout<<"Something went wrong..."<<std::endl;
@@ -179,11 +215,10 @@ void Interface::displayMainMenu(){
     }
 
     else if(choice == "5" && this->loginMem->role_id == 1){
-        //print all members and dets
-        return;
+        this->printAllMembers();
     }
 
-    else std::cout<<"Not a valid choice"<<std::endl;
+    else std::cout<<"Not a valid choice...(q to Logout)"<<std::endl;
 }
 
 void Interface::RegisterMember(){
