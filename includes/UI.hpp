@@ -1,6 +1,4 @@
 #pragma once
-
-
 #include <iostream>
 #include <vector>
 #include "./MySQLConnect.hpp"
@@ -27,11 +25,11 @@ class Interface{
 
 
     std::vector<std::string> menu_choises = {
-        "Add Item",
-        "See all Items",
-        "See available items",
-        "Register member",
-        "See all",
+        "Reserve Item (Access Level 3)",
+        "Add/Remove Item (Access Level 1,2)",
+        "All Reserved Items (Access Level 1,2)",
+        "Register member (Access Level 1)",
+        "See all members (Access Level 1)"
     };
 
     void RegisterMember();
@@ -46,7 +44,26 @@ class Interface{
         }
         void displayMainMenu();
         void Login();
+        void printLogo();
 };
+
+void Interface::printLogo(){
+    std::string logo = R"(
+
+ #     # #     # #     #         ######                                                      #####                           #####                                           
+ #     # ##   ## #     #         #     #  ####  #####   ####  ##### #  ####   ####          #     # #      #    # #####     #     # #####  ####  #####    ##    ####  ###### 
+ #     # # # # # #     #         #     # #    # #    # #    #   #   # #    # #              #       #      #    # #    #    #         #   #    # #    #  #  #  #    # #      
+ ####### #  #  # #     #         ######  #    # #####  #    #   #   # #       ####          #       #      #    # #####      #####    #   #    # #    # #    # #      #####  
+ #     # #     # #     #         #   #   #    # #    # #    #   #   # #           #         #       #      #    # #    #          #   #   #    # #####  ###### #  ### #      
+ #     # #     # #     #         #    #  #    # #    # #    #   #   # #    # #    #         #     # #      #    # #    #    #     #   #   #    # #   #  #    # #    # #      
+ #     # #     #  #####          #     #  ####  #####   ####    #   #  ####   ####           #####  ######  ####  #####      #####    #    ####  #    # #    #  ####  ###### 
+                         #######                                                    #######                                                                                  
+
+)";
+
+std::cout<<logo<<std::endl;
+
+}
 
 Member* Interface::getMember(std::string username){
     try{
@@ -81,6 +98,7 @@ void Interface::Login(){
     std::string username = "";
     std::string password = "";
     while(this->_appStatus){
+        this->printLogo();
         std::cout<<"Login Username >> ";
         std::cin>>username;
         std::cout<<"Password >> ";
@@ -112,9 +130,11 @@ void Interface::Login(){
                 this->_login = true;
             }
             else std::cout<<"Wrong Login..."<<std::endl;
+            std::system("clear");
 
             while(this->_login){
                 this->displayMainMenu();
+                std::system("clear");
             }
             } catch(sql::SQLException &e){
                 std::cout<<"Something went wrong..."<<std::endl;
@@ -139,9 +159,30 @@ void Interface::displayMainMenu(){
         return;
     }
 
-    if(choice == "4"){
+    if(choice == "1"){
+        //reserve menu
+        return;
+    }
+
+    else if(choice == "2" && this->loginMem->role_id >= 3){
+        //add/remove menu
+        return;
+    }
+
+    else if(choice == "3" && !this->loginMem->role_id >= 3){
+        //print all reserved items and by who
+        return; 
+    }
+
+    else if(choice == "4" && this->loginMem->role_id == 1){
         this->RegisterMember();
     }
+
+    else if(choice == "5" && this->loginMem->role_id == 1){
+        //print all members and dets
+        return;
+    }
+
     else std::cout<<"Not a valid choice"<<std::endl;
 }
 
