@@ -1,1 +1,1 @@
-sudo g++ -I/usr/include/cppconn -o testapp app.cpp -L/usr/lib -lmysqlcppconn
+sudo g++ -I/usr/include/cppconn -o testapp app.cpp -L/usr/lib -lmysqlcppconn -lssl -lcrypto

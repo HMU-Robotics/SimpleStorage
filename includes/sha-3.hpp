@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <vector>
 #include <sstream> //for std::ostringstream
@@ -30,12 +31,4 @@ std::string sha3_512(const std::string& input)
     std::string output = bytes_to_hex_string(std::vector<uint8_t>(digest, digest + digest_length));
     OPENSSL_free(digest);
     return output;
-}
-
-int main()
-{
-    std::cout << sha3_512(std::string("shadow123"))<<std::endl;
-    std::cout << sha3_512(std::string("shadow123"))<<std::endl;
-
-    return 0;
 }
