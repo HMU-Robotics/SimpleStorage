@@ -29,7 +29,7 @@ create table item(
     name text not null ,
     description text,
     code varchar(36) not null,
-    status enum('available', 'unavailable'),
+    status enum('available', 'unavailable') default 'available',
     created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp on update current_timestamp,
     primary key (id)
@@ -42,7 +42,6 @@ create table reservation(
     start_data timestamp not null,
     end_data timestamp not null,
     create_at timestamp default current_timestamp,
-    count int not null,
     primary key (id),
     foreign key (user_id) references user(id),
     foreign key (user_id) references item(id)

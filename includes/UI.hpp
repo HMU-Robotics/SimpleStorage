@@ -38,19 +38,119 @@ class Interface{
     protected:
         Member* getMember(std::string username);
         void printAllMembers();
+        void printAllItems();
+        void printAllAvailableItems();
         void create_item();
         void delete_item();
+        void _start_up();
+        void reserve_item();
 
     public:
         Interface(){
             std::cout<<"Connecting to db..."<<std::endl;
             this->db.connect("tcp://127.0.0.1:3306","HMU","HMUroboticsclub!@#123456","HMU_ROBOTICS_STORAGE");
+            try{
+                int size = 0;
+                std::string query = "SELECT username from user where role_id=1";
+                db.pstmt = db.con->prepareStatement(query);
+                db.res = db.pstmt->executeQuery();
+                while(db.res->next()){
+                    size++;
+                }
+                std::cout<<size<<std::endl;
+                if(size < 1) _start_up();
+            } catch(sql::SQLException &e){
+                std::cout<<"Something went wrong... "<<std::endl;
+            }
         }
         void displayMainMenu();
         void ItemsMenu();
         void Login();
         void printLogo();
 };
+
+
+void Interface::printAllAvailableItems(){
+    try{
+        std::string query = "SELECT * FROM item where status=1";
+        db.pstmt = db.con->prepareStatement(query);
+        db.res = db.pstmt->executeQuery();
+        db.printResult();
+    }catch(sql::SQLException &e){
+        std::cout<<"Something went wrong ..."<<std::endl;
+    }
+}
+
+void Interface::reserve_item(){
+    this->printAllAvailableItems();
+    bool _item_menu = true;
+    std::string code;
+    std::string query_1 = "insert into reservation (user_id,item_id,start_data,end_data) values (?,?,?,?)";
+    std::string query_2 = "update item set status=1 where code=?";
+    while(_item_menu){
+        std::cout<<"Enter code to reserve item >> ";
+        std::cin>>code;
+    }
+}
+
+void Interface::_start_up(){
+    std::cout<<"First lauch detected..."<<std::endl;
+    std::cout<<"Please set up an admin account"<<std::endl;
+    this->RegisterMember();
+}
+
+void Interface::printAllItems(){
+    std::string query;
+    try{
+        query = "SELECT * FROM item";
+        db.pstmt = db.con->prepareStatement(query);
+        db.res = db.pstmt->executeQuery();
+        db.printResult();
+    } catch(sql::SQLException &e){
+        std::cout<<"Something went wrong ..."<<std::endl;
+    }
+}
+
+void Interface::create_item(){
+    int status = 0;
+    std::string name , description , code , query;
+    std::cout<<"Enter item name >> ";
+    std::cin>>name;
+    std::cout<<"Add description >> "<<std::endl;
+    std::cin>>description;
+    std::cout<<"Enter code >> ";
+    std::cin>>code;
+    try{
+        query = "insert into item (name,description,code) values (?,?,?)";
+        db.pstmt = db.con->prepareStatement(query);
+        db.pstmt->setString(1,name);
+        db.pstmt->setString(2,description);
+        db.pstmt->setString(3,code);
+        db.res = db.pstmt->executeQuery();
+    } catch(sql::SQLException &e){
+        std::cout<<"Something went wrong ..."<<std::endl;
+    }
+
+}
+
+void Interface::delete_item(){
+    bool _item_menu = true;
+    std::string code_to_delete;
+    std::string query = "DELETE FROM item WHERE code=?";
+    while(_item_menu){
+        this->printAllItems();
+        std::cout<<"Enter code to delete >> ";
+        std::cin>>code_to_delete;
+        if(code_to_delete == "q") return;
+        else if(code_to_delete == "") continue;
+        else{
+            db.pstmt = db.con->prepareStatement(query);
+            db.pstmt->setString(1,code_to_delete);
+            db.res = db.pstmt->executeQuery();
+        }
+    }
+    
+}
 
 void Interface::ItemsMenu(){
     std::string choice = "";
@@ -196,16 +296,16 @@ void Interface::displayMainMenu(){
     }
 
     if(choice == "1"){
-        //reserve menu
+        this->reserve_item();
         return;
     }
 
-    else if(choice == "2" && this->loginMem->role_id >= 3){
-        //add/remove menu
+    else if(choice == "2" && this->loginMem->role_id <= 2){
+        this->ItemsMenu();
         return;
     }
 
-    else if(choice == "3" && !this->loginMem->role_id >= 3){
+    else if(choice == "3" && this->loginMem->role_id <= 2){
         //print all reserved items and by who
         return; 
     }
